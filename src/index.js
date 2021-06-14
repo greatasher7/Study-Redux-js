@@ -48,19 +48,18 @@ countStore.subscribe(onChange);
 const newTodo = document.getElementById("newTodo");
 const formTodo = document.getElementById("formTodo");
 const addTodoBtn = document.getElementById("addTodo"); 
-const deleteTodoBtn = document.getElementById("deleteTodo"); 
 const todoList = document.getElementById("todoList");
 
 const ADD_TODO = "ADD_TODO";
 const DELETE_TODO = "DELETE_TODO";
 
 const updateTodo = (state = [], action) => {
-  console.log(action.todo, state);
+  console.log("updated", action.text, state);
   switch (action.type){
     case ADD_TODO:
-      return [...state, action.todo];
+      return [action, ...state];  
     case DELETE_TODO:
-      return [];
+      return state.filter(todo => todo.id !== action.id);
     default:
       return state;
   }
@@ -68,27 +67,44 @@ const updateTodo = (state = [], action) => {
 
 const todoStore = createStore(updateTodo);
 
+// dispatch - state update
+const addTodo = (text) => ({type: ADD_TODO, text, id: Date.now()})
+const deleteTodo = (id) => ({type: DELETE_TODO, id})
 
-// subscribe
-const onChangeTodo = () => {
-  console.log("subscribe", todoStore.getState());
+
+const dispatchAddTodo = (text) => {
+  todoStore.dispatch(addTodo(text));
 }
 
-todoStore.subscribe(onChangeTodo);
-
-// dispatch
-const addTodo = (toDo) => {
-  todoStore.dispatch({type: ADD_TODO, todo: toDo});
-}
+const dispatchDeleteTodo = (e) => {
+  const id = parseInt(e.target.parentNode.id);
+  todoStore.dispatch(deleteTodo(id));
+} 
 
 const handleSubmit = (e) => {
   e.preventDefault();
   const toDo = newTodo.value;
   newTodo.value = "";
-  addTodo(toDo);
+  dispatchAddTodo(toDo);
 }
-formTodo.addEventListener('submit', handleSubmit)
+formTodo.addEventListener('submit', handleSubmit);
 
 
+// subscribe 
+const paintTodo = () => {
+  const toDos = todoStore.getState();
+  todoList.innerText = "";
+  toDos.forEach(todo => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.addEventListener("click", dispatchDeleteTodo)
+    btn.innerText = "DEL"
+    li.id = todo.id;
+    li.innerText = todo.text;
+    li.appendChild(btn);
+    todoList.appendChild(li);
+  });
+}
+todoStore.subscribe(paintTodo);
 
 
