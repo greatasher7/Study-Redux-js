@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { connect } from "react-redux";
-import {actionCreators} from "../Store";
+import {add} from "../Store";
 import Todo from "../Components/Todo";
 
 
@@ -41,7 +41,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        addTodo: (text) => dispatch(actionCreators.addTodo(text))
+        addTodo: (text) => dispatch(add(text))
     }
 }
 
